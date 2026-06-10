@@ -2,7 +2,7 @@
     <div class="container mx-auto px-4 max-w-5xl">
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-[#34402F]">Konversi Tanggal Antar Kalender</h2>
-            <p class="text-lg text-[#647754]">Pilih sistem kalender asal dan tujuan untuk mengonversi tanggal Masehi, Hijriyah, Jawa, atau Sunda dalam satu tempat.</p>
+            <p class="text-lg text-[#647754]">Pilih sistem kalender asal dan tujuan untuk mengonversi tanggal Masehi, Hijriyah, <span class="line-through decoration-red-500 decoration-[2px] opacity-70">Jawa, atau Sunda</span> dalam satu tempat.</p>
         </div>
 
         <div class="grid lg:grid-cols-2 gap-8 items-start">
@@ -17,8 +17,8 @@
                         <select id="conv-from-cal" class="flex h-10 w-full rounded-md border border-[#D5DDC8] bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EFC765]">
                             <option value="gregorian">Masehi</option>
                             <option value="hijri">Hijriyah</option>
-                            <option value="javanese">Jawa</option>
-                            <option value="sundanese">Sunda</option>
+                            <option value="javanese" disabled>Jawa (Coming Soon)</option>
+                            <option value="sundanese" disabled>Sunda (Coming Soon)</option>
                         </select>
                     </div>
 
@@ -49,8 +49,8 @@
                         <select id="conv-to-cal" class="flex h-10 w-full rounded-md border border-[#D5DDC8] bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EFC765]">
                             <option value="hijri">Hijriyah</option>
                             <option value="gregorian">Masehi</option>
-                            <option value="javanese">Jawa</option>
-                            <option value="sundanese">Sunda</option>
+                            <option value="javanese" disabled>Jawa (Coming Soon)</option>
+                            <option value="sundanese" disabled>Sunda (Coming Soon)</option>
                         </select>
                     </div>
 
@@ -78,11 +78,11 @@
                     </div>
                     <div class="rounded-2xl border border-[#D5DDC8] bg-white p-4 text-center">
                         <h4 id="conv-add-2-title" class="text-xs font-semibold text-[#647754] mb-1 uppercase tracking-wider">Jawa</h4>
-                        <p id="conv-add-2-text" class="text-sm font-medium text-[#34402F]">-</p>
+                        <p id="conv-add-2-text" class="text-sm font-medium text-[#34402F] opacity-50">Coming Soon</p>
                     </div>
                     <div class="rounded-2xl border border-[#D5DDC8] bg-white p-4 text-center">
                         <h4 id="conv-add-3-title" class="text-xs font-semibold text-[#647754] mb-1 uppercase tracking-wider">Sunda</h4>
-                        <p id="conv-add-3-text" class="text-sm font-medium text-[#34402F]">-</p>
+                        <p id="conv-add-3-text" class="text-sm font-medium text-[#34402F] opacity-50">Coming Soon</p>
                     </div>
                 </div>
 

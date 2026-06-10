@@ -4,7 +4,7 @@
             <div class="h-5 w-5 rounded-full bg-[#EFC765]"></div>
             <h2 class="font-heading text-xl font-bold tracking-tight text-[#34402F]">Multi Calendar Nusantara</h2>
         </div>
-        <p class="text-[#647754] mb-8 max-w-md">Kalender digital untuk melihat dan mengonversi tanggal Masehi, Hijriyah, Jawa, dan Sunda.</p>
+        <p class="text-[#647754] mb-8 max-w-md">Kalender digital untuk melihat dan mengonversi tanggal Masehi, Hijriyah, <span class="line-through decoration-red-500 decoration-[2px] opacity-70">Jawa, dan Sunda</span>.</p>
 
         <div class="flex flex-wrap justify-center gap-4 md:gap-6 text-sm font-medium text-[#4F5F43] mb-8">
             <a href="#" class="hover:text-[#34402F] transition-colors">Beranda</a>

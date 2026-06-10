@@ -12,7 +12,7 @@
     <!-- Hero Content -->
     <div class="container relative z-10 mx-auto px-4 text-center">
         <h1 class="mx-auto max-w-4xl text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl mb-6 text-[#34402F]">
-            Satu Kalender untuk Masehi, Hijriyah, Jawa, dan Sunda
+            Satu Kalender untuk Masehi, Hijriyah, <span class="line-through decoration-red-500 decoration-[5px] opacity-70">Jawa, dan Sunda</span>
         </h1>
 
         <div class="h-14 md:h-10 mb-4">
