@@ -16,35 +16,41 @@ class CalendarController extends Controller
 
     public function month(Request $request)
     {
+        $calendar = $request->query('calendar', 'gregorian');
         $year = (int) $request->query('year', now()->year);
         $month = (int) $request->query('month', now()->month);
 
-        if ($month < 1 || $month > 12) {
-            return response()->json([
-                'message' => 'Bulan tidak valid.',
-            ], 422);
-        }
+        $query = CalendarDate::query();
+        $availability = ['status' => 'available', 'generated' => false];
 
-        $availability = $this->availabilityService->ensureMonthAvailable(
-            year: $year,
-            month: $month
-        );
+        if ($calendar === 'gregorian') {
+            if ($month < 1 || $month > 12) {
+                return response()->json(['message' => 'Bulan tidak valid.'], 422);
+            }
 
-        $start = Carbon::create($year, $month, 1)->startOfMonth();
-        $end = $start->copy()->endOfMonth();
+            $availability = $this->availabilityService->ensureMonthAvailable($year, $month);
 
-        $days = CalendarDate::query()
-            ->whereBetween('gregorian_date', [
+            $start = Carbon::create($year, $month, 1)->startOfMonth();
+            $end = $start->copy()->endOfMonth();
+
+            $query->whereBetween('gregorian_date', [
                 $start->toDateString(),
                 $end->toDateString(),
-            ])
-            ->orderBy('gregorian_date')
+            ]);
+        } else {
+            $colPrefix = $calendar . '_';
+            $query->where($colPrefix . 'year', $year)
+                  ->where($colPrefix . 'month', $month);
+        }
+
+        $days = $query->orderBy('gregorian_date')
             ->get()
             ->keyBy(fn ($day) => $day->gregorian_date->format('Y-m-d'));
 
         return response()->json([
             'status' => 'success',
             'availability' => $availability,
+            'calendar' => $calendar,
             'year' => $year,
             'month' => $month,
             'days' => $days,

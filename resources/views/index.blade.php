@@ -72,8 +72,9 @@
             const calendarGrid = document.getElementById('calendar-grid');
             const mainCalendarSelect = document.getElementById('main-calendar-select');
             const daysHeader = document.getElementById('calendar-days-header');
-            const calendarMonthTitle = document.getElementById('calendar-month-title');
-            
+            const monthSelect = document.getElementById('calendar-month-select');
+            const yearSelect = document.getElementById('calendar-year-select');
+
             const dayNamesHeader = {
                 gregorian: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
                 hijri: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Ahad'],
@@ -103,26 +104,78 @@
             };
 
             let multiCalendarDays = [];
+            let currentCalendar = 'gregorian';
             let currentYear = new Date().getFullYear();
             let currentMonth = new Date().getMonth() + 1;
+
+            const today = new Date();
+            const todayYear = today.getFullYear();
+            const todayMonth = today.getMonth() + 1;
+            const todayDate = today.getDate();
+
+            let initialLoad = true;
 
             const prevMonthBtn = document.getElementById('prev-month-btn');
             const nextMonthBtn = document.getElementById('next-month-btn');
 
-            async function fetchCalendarData(year, month) {
+            // Modal Elements
+            const modal = document.getElementById('mobile-date-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const modalMainDate = document.getElementById('modal-main-date');
+            const modalMainDay = document.getElementById('modal-main-day');
+            const modalDetailsContainer = document.getElementById('modal-details-container');
+
+            function openModal(dayData, mainCal) {
+                if(!dayData || dayData.gregorian.day === '') return;
+
+                const mainSelected = dayData[mainCal];
+                modalMainDay.textContent = mainSelected.dayName;
+                modalMainDate.textContent = `${mainSelected.day} ${mainSelected.monthName} ${mainSelected.year}`;
+
+                modalDetailsContainer.innerHTML = '';
+
+                // Add all calendars except main
+                Object.keys(labels).forEach(key => {
+                    if (key !== mainCal) {
+                        const d = dayData[key];
+                        const div = document.createElement('div');
+                        div.className = "bg-white p-3 rounded-xl border border-[#D5DDC8] shadow-sm";
+                        div.innerHTML = `
+                            <h4 class="text-[10px] font-bold text-[#647754] uppercase tracking-wider mb-1">${labels[key]}</h4>
+                            <p class="text-sm font-medium text-[#34402F]">${d.dayName}, ${d.day} ${d.monthName} ${d.year}</p>
+                        `;
+                        modalDetailsContainer.appendChild(div);
+                    }
+                });
+
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            }
+
+            function closeModal() {
+                modal.classList.add('opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+
+            if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+            if (modal) modal.addEventListener('click', (e) => {
+                if(e.target === modal) closeModal();
+            });
+
+            async function fetchCalendarData(calendar, year, month) {
                 if (calendarGrid) {
                     calendarGrid.innerHTML = '<div class="col-span-7 py-10 text-center text-[#647754]">Memuat data kalender...</div>';
                 }
-                
+
                 try {
-                    const response = await fetch(`/api/calendars/month?year=${year}&month=${month}`);
+                    const response = await fetch(`/api/calendars/month?calendar=${calendar}&year=${year}&month=${month}`);
                     if (!response.ok) throw new Error('Gagal memuat data');
-                    
+
                     const result = await response.json();
                     const daysObj = result.days;
-                    
+
                     multiCalendarDays = [];
-                    
+
                     const keys = Object.keys(daysObj);
                     if (keys.length > 0) {
                         const firstDateStr = keys[0];
@@ -131,7 +184,7 @@
                         let firstDayOfWeek = new Date(firstDateStr).getDay();
                         // Adjust so Monday is 0, Sunday is 6
                         let emptyCells = (firstDayOfWeek + 6) % 7;
-                        
+
                         // Padding start
                         for (let i = 0; i < emptyCells; i++) {
                             multiCalendarDays.push({
@@ -141,7 +194,7 @@
                                 sundanese: { day: '' }
                             });
                         }
-                        
+
                         // Populate valid days
                         keys.forEach(dateStr => {
                             const d = daysObj[dateStr];
@@ -150,12 +203,14 @@
                                     dayName: d.gregorian_day_name || '-',
                                     day: d.gregorian_day,
                                     monthName: d.gregorian_month_name || '-',
+                                    monthIndex: d.gregorian_month,
                                     year: d.gregorian_year
                                 },
                                 hijri: {
                                     dayName: d.hijri_day_name || '-',
                                     day: d.hijri_day || '-',
                                     monthName: d.hijri_month_name || '-',
+                                    monthIndex: d.hijri_month,
                                     year: d.hijri_year || '-'
                                 },
                                 javanese: {
@@ -163,19 +218,21 @@
                                     marketDay: d.javanese_market_day || '-',
                                     day: d.javanese_day || '-',
                                     monthName: d.javanese_month_name || '-',
+                                    monthIndex: d.javanese_month,
                                     year: d.javanese_year || '-'
                                 },
                                 sundanese: {
-                                    sundaneseDayName: d.sundanese_day_name || '-',
+                                    dayName: d.sundanese_day_name || '-',
                                     marketDay: d.sundanese_market_day || '-',
                                     day: d.sundanese_day || '-',
                                     monthName: d.sundanese_month_name || '-',
+                                    monthIndex: d.sundanese_month,
                                     year: d.sundanese_year || '-'
                                 }
                             });
                         });
                     }
-                    
+
                     renderCalendar();
                 } catch (error) {
                     console.error(error);
@@ -196,26 +253,57 @@
                 });
             }
 
+            function populateDropdowns(mainCal) {
+                if(!monthSelect || !yearSelect) return;
+
+                // Get month names for the selected calendar type from API data or static if empty
+                // But for now, we only need to populate them correctly
+                const monthNames = {
+                    gregorian: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                    hijri: ['Muharram', 'Safar', 'Rabiul Awal', 'Rabiul Akhir', 'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Syaban', 'Ramadhan', 'Syawal', 'Dzulqaidah', 'Dzulhijjah'],
+                    javanese: ['Sura / Muharam', 'Sapar', 'Mulud', 'Bakda Mulud / Silih Mulud', 'Jumadilawal', 'Jumadilakhir', 'Rejeb', 'Ruwah', 'Pasa (puasa) / Ramelan', 'Sawal / Riyaya', 'Sela / Apit', 'Besar / Rayagung'],
+                    sundanese: ['Kasa', 'Karo', 'Katiga / Katelu', 'Kapat', 'Kalima', 'Kanem', 'Kapitu', 'Kawalu / Kawolu', 'Kasanga', 'Kadasa', 'Hapitlemah / Dhesta', 'Hapitkayu / Sadha']
+                    // sundanese: ['Kartika', 'Margasira', 'Posya', 'Maga', 'Palguna', 'Setra', 'Wesaka', 'Yesta', 'Asada', 'Srawana', 'Badrapada', 'Asuji']
+                };
+
+                const currentMonths = monthNames[mainCal] || monthNames.gregorian;
+
+                monthSelect.innerHTML = '';
+                currentMonths.forEach((m, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx + 1;
+                    opt.textContent = m;
+                    if (idx + 1 === currentMonth) opt.selected = true;
+                    monthSelect.appendChild(opt);
+                });
+
+                yearSelect.innerHTML = '';
+                // For year, populate +- 10 years around currentYear, bound by 1950-2050 Gregorian equivalent
+                for (let y = currentYear - 100; y <= currentYear + 50; y++) {
+                    const opt = document.createElement('option');
+                    opt.value = y;
+                    opt.textContent = y;
+                    if (y === currentYear) opt.selected = true;
+                    yearSelect.appendChild(opt);
+                }
+            }
+
             function renderCalendar() {
                 if (!calendarGrid) return;
 
                 const mainCal = mainCalendarSelect.value;
-                
-                if (calendarMonthTitle) {
-                    // find a valid day in the middle to get the month name
-                    const validDay = multiCalendarDays.find(d => d.gregorian.day !== '');
-                    if (validDay) {
-                        const midDay = validDay[mainCal];
-                        calendarMonthTitle.textContent = `${midDay.monthName} ${midDay.year}`;
-                    }
+
+                // Populate Dropdowns only if it's not already correct
+                if (monthSelect && monthSelect.value != currentMonth) {
+                    populateDropdowns(mainCal);
                 }
-                
+
                 if (daysHeader) {
                     daysHeader.innerHTML = '';
                     dayNamesHeader[mainCal].forEach((day, idx) => {
                         const div = document.createElement('div');
                         div.textContent = day;
-                        if (idx >= 5) div.classList.add('text-[#87531F]');
+                        if (idx >= 6) div.classList.add('text-[#87531F]');
                         daysHeader.appendChild(div);
                     });
                 }
@@ -228,70 +316,69 @@
 
                 calendarGrid.innerHTML = '';
 
-                // Get today's date for highlighting
-                const today = new Date();
-                const todayYear = today.getFullYear();
-                const todayMonth = today.getMonth() + 1;
-                const todayDate = today.getDate();
+                // Get today's date for highlighting (using global todayDate, todayMonth, todayYear)
 
                 multiCalendarDays.forEach((dayData) => {
                     const cell = document.createElement('div');
-                    cell.className = "flex flex-col items-center justify-center p-1 md:p-2 min-h-[6rem] md:min-h-[8rem] border border-[#D5DDC8] rounded-xl transition-colors hover:bg-[#F6F8F3]";
+
+                    const isToday = (
+                        dayData.gregorian.day !== '' &&
+                        dayData.gregorian.day === todayDate &&
+                        dayData.gregorian.monthIndex === todayMonth &&
+                        dayData.gregorian.year === todayYear
+                    );
 
                     if (dayData.gregorian.day === '') {
-                        cell.classList.add('bg-[#FBFBF7]', 'border-transparent', 'opacity-50');
+                        cell.className = "flex flex-col items-center justify-center p-1 md:p-2 min-h-[6rem] md:min-h-[8rem] border border-transparent rounded-xl bg-[#FBFBF7] opacity-50";
+                    } else if (isToday) {
+                        cell.className = "flex flex-col items-center justify-center p-1 md:p-2 min-h-[6rem] md:min-h-[8rem] border border-[#34402F] rounded-xl transition-colors bg-[#34402F] text-white hover:bg-[#404F3B]";
                     } else {
-                        cell.classList.add('bg-white');
-                        // Highlight today
-                        if (dayData.gregorian.day === todayDate && currentMonth === todayMonth && currentYear === todayYear) {
-                            cell.classList.add('bg-[#FFF9EA]', 'ring-1', 'ring-[#EFC765]');
-                        }
+                        cell.className = "flex flex-col items-center justify-center p-1 md:p-2 min-h-[6rem] md:min-h-[8rem] border border-[#D5DDC8] rounded-xl transition-colors bg-white hover:bg-[#F6F8F3]";
                     }
 
                     if (dayData.gregorian.day !== '') {
+                        cell.classList.add('cursor-pointer');
+                        cell.addEventListener('click', () => openModal(dayData, mainCal));
+
                         const mainDateDiv = document.createElement('div');
                         const subDateDiv = document.createElement('div');
                         subDateDiv.className = "w-full text-left mt-2 hidden md:block";
-                        const subDateMobileDiv = document.createElement('div');
-                        subDateMobileDiv.className = "w-full text-center mt-1 md:hidden";
 
                         const mainSelected = dayData[mainCal];
-                        mainDateDiv.className = "text-lg md:text-2xl font-bold text-[#34402F]";
+                        mainDateDiv.className = isToday
+                            ? "text-lg md:text-2xl font-bold text-white"
+                            : "text-lg md:text-2xl font-bold text-[#34402F]";
                         mainDateDiv.textContent = mainSelected.day;
 
                         let subTitle = document.createElement('div');
-                        subTitle.className = "text-[10px] md:text-xs font-semibold text-[#647754]";
+                        subTitle.className = isToday
+                            ? "text-[10px] md:text-xs font-semibold text-[#E5ECDE]"
+                            : "text-[10px] md:text-xs font-semibold text-[#647754]";
 
                         if (mainCal === 'javanese') {
                             subTitle.textContent = `${mainSelected.dayName} ${mainSelected.marketDay}`;
                         } else if (mainCal === 'sundanese') {
-                            subTitle.textContent = `${mainSelected.sundaneseDayName} ${mainSelected.marketDay}`;
+                            subTitle.textContent = `${mainSelected.dayName} ${mainSelected.marketDay}`;
                         } else {
                             subTitle.textContent = mainSelected.dayName;
                         }
 
                         // Add main title below number on mobile, above on desktop
                         const mobileMainTitle = document.createElement('div');
-                        mobileMainTitle.className = "text-[10px] font-medium text-[#647754]";
+                        mobileMainTitle.className = isToday
+                            ? "text-[10px] font-medium text-[#E5ECDE] text-center break-all"
+                            : "text-[10px] font-medium text-[#647754] text-center break-all";
                         mobileMainTitle.textContent = `${mainSelected.monthName} ${mainSelected.year}`;
 
-                        // Collect active sub-calendars
-                        let activeCount = 0;
+                        // Collect active sub-calendars for Desktop only
                         Object.keys(visibleOthers).forEach(key => {
                             if (key !== mainCal && visibleOthers[key]) {
                                 const subItem = document.createElement('div');
-                                subItem.className = "text-[9px] md:text-[11px] text-[#4F5F43] truncate w-full";
+                                subItem.className = isToday
+                                    ? "text-[9px] md:text-[11px] text-[#D5DDC8] truncate w-full"
+                                    : "text-[9px] md:text-[11px] text-[#4F5F43] truncate w-full";
                                 subItem.textContent = `${labels[key]}: ${dayData[key].day} ${dayData[key].monthName} ${dayData[key].year}`;
                                 subDateDiv.appendChild(subItem);
-
-                                // Minimal view for mobile
-                                if (activeCount < 2) {
-                                    const mobileSubItem = document.createElement('div');
-                                    mobileSubItem.className = "text-[8px] sm:text-[9px] text-[#7F946D] leading-tight truncate w-full";
-                                    mobileSubItem.textContent = `${dayData[key].day} ${dayData[key].monthName} ${dayData[key].year}`;
-                                    subDateMobileDiv.appendChild(mobileSubItem);
-                                }
-                                activeCount++;
                             }
                         });
 
@@ -306,11 +393,11 @@
                         cell.appendChild(subTitle);
                         cell.appendChild(topWrapper);
                         cell.appendChild(subDateDiv);
-                        cell.appendChild(subDateMobileDiv);
                     }
 
                     calendarGrid.appendChild(cell);
                 });
+                initialLoad = false;
             }
 
             if (prevMonthBtn && nextMonthBtn) {
@@ -320,7 +407,8 @@
                         currentMonth = 12;
                         currentYear--;
                     }
-                    fetchCalendarData(currentYear, currentMonth);
+                    populateDropdowns(currentCalendar);
+                    fetchCalendarData(currentCalendar, currentYear, currentMonth);
                 });
 
                 nextMonthBtn.addEventListener('click', () => {
@@ -329,14 +417,85 @@
                         currentMonth = 1;
                         currentYear++;
                     }
-                    fetchCalendarData(currentYear, currentMonth);
+                    populateDropdowns(currentCalendar);
+                    fetchCalendarData(currentCalendar, currentYear, currentMonth);
+                });
+            }
+
+            if (monthSelect && yearSelect) {
+                monthSelect.addEventListener('change', (e) => {
+                    currentMonth = parseInt(e.target.value);
+                    fetchCalendarData(currentCalendar, currentYear, currentMonth);
+                });
+                yearSelect.addEventListener('change', (e) => {
+                    currentYear = parseInt(e.target.value);
+                    fetchCalendarData(currentCalendar, currentYear, currentMonth);
+                });
+            }
+
+            const todayBtn = document.getElementById('today-btn');
+            if (todayBtn) {
+                todayBtn.addEventListener('click', async () => {
+                    const mainCal = mainCalendarSelect.value;
+
+                    if (mainCal === 'gregorian') {
+                        currentYear = todayYear;
+                        currentMonth = todayMonth;
+                        populateDropdowns(mainCal);
+                        fetchCalendarData(mainCal, currentYear, currentMonth);
+                    } else {
+                        try {
+                            if (calendarGrid) {
+                                calendarGrid.innerHTML = '<div class="col-span-7 py-10 text-center text-[#647754]">Memuat data hari ini...</div>';
+                            }
+                            const response = await fetch(`/api/calendars/month?calendar=gregorian&year=${todayYear}&month=${todayMonth}`);
+                            if (!response.ok) throw new Error('Gagal memuat');
+
+                            const result = await response.json();
+                            const daysObj = result.days;
+
+                            const todayStr = `${todayYear}-${String(todayMonth).padStart(2, '0')}-${String(todayDate).padStart(2, '0')}`;
+                            const todayData = daysObj[todayStr];
+
+                            if (todayData) {
+                                currentYear = parseInt(todayData[mainCal + '_year']);
+                                currentMonth = parseInt(todayData[mainCal + '_month']);
+                            } else {
+                                currentYear = todayYear;
+                                currentMonth = todayMonth;
+                            }
+
+                            populateDropdowns(mainCal);
+                            fetchCalendarData(mainCal, currentYear, currentMonth);
+                        } catch (e) {
+                            console.error(e);
+                            currentYear = todayYear;
+                            currentMonth = todayMonth;
+                            populateDropdowns(mainCal);
+                            fetchCalendarData(mainCal, currentYear, currentMonth);
+                        }
+                    }
                 });
             }
 
             if (mainCalendarSelect) {
                 mainCalendarSelect.addEventListener('change', () => {
-                    updateVisibleCheckboxes(mainCalendarSelect.value);
-                    renderCalendar();
+                    const newCal = mainCalendarSelect.value;
+
+                    // Logic to overlap month based on current grid's middle point
+                    const validDays = multiCalendarDays.filter(d => d.gregorian.day !== '');
+                    if(validDays.length > 0) {
+                        const midDay = validDays[Math.floor(validDays.length / 2)];
+                        if(midDay[newCal] && midDay[newCal].year !== '-') {
+                            currentYear = parseInt(midDay[newCal].year);
+                            currentMonth = parseInt(midDay[newCal].monthIndex);
+                        }
+                    }
+
+                    currentCalendar = newCal;
+                    updateVisibleCheckboxes(currentCalendar);
+                    populateDropdowns(currentCalendar);
+                    fetchCalendarData(currentCalendar, currentYear, currentMonth);
                 });
 
                 Object.values(checkBoxes).forEach(cb => {
@@ -347,7 +506,8 @@
 
                 // Initial render
                 updateVisibleCheckboxes(mainCalendarSelect.value);
-                fetchCalendarData(currentYear, currentMonth);
+                populateDropdowns(currentCalendar);
+                fetchCalendarData(currentCalendar, currentYear, currentMonth);
             }
 
             // Conversion Logic
@@ -360,7 +520,7 @@
                     const month = document.getElementById('conv-month').value;
                     const year = document.getElementById('conv-year').value;
                     const toCal = document.getElementById('conv-to-cal').value;
-                    
+
                     const errorMsg = document.getElementById('conv-error-msg');
                     errorMsg.classList.add('hidden');
 
@@ -372,7 +532,7 @@
                     try {
                         const res = await fetch(`/api/calendars/convert?from_calendar=${fromCal}&day=${day}&month=${month}&year=${year}`);
                         const data = await res.json();
-                        
+
                         if (!res.ok) {
                             throw new Error(data.message || 'Gagal mengkonversi');
                         }
@@ -395,13 +555,13 @@
 
                         // Update Additional Results (the other 3)
                         const others = Object.keys(formatted).filter(k => k !== toCal);
-                        
+
                         document.getElementById('conv-add-1-title').textContent = labels[others[0]];
                         document.getElementById('conv-add-1-text').textContent = formatted[others[0]];
-                        
+
                         document.getElementById('conv-add-2-title').textContent = labels[others[1]];
                         document.getElementById('conv-add-2-text').textContent = formatted[others[1]];
-                        
+
                         document.getElementById('conv-add-3-title').textContent = labels[others[2]];
                         document.getElementById('conv-add-3-text').textContent = formatted[others[2]];
 
