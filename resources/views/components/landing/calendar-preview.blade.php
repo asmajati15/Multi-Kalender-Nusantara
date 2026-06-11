@@ -2,7 +2,7 @@
     <div class="container mx-auto px-4 max-w-6xl">
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-[#34402F]">Tampilan Multi Calendar</h2>
-            <p class="text-lg text-[#647754]">Bandingkan tanggal Masehi, Hijriyah, <span class="line-through decoration-red-500 decoration-[2px] opacity-70">Jawa, dan Sunda</span> dalam satu grid kalender yang rapi.</p>
+            <p class="text-lg text-[#647754]">Bandingkan tanggal Masehi, Hijriyah, Jawa, dan Sunda dalam satu grid kalender yang rapi.</p>
         </div>
 
         <div class="mb-8 flex flex-col md:flex-row items-center justify-between bg-[#FBFBF7] p-4 rounded-2xl border border-[#D5DDC8] gap-4">
@@ -11,8 +11,8 @@
                 <select id="main-calendar-select" class="flex h-10 w-40 rounded-md border border-[#D5DDC8] bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EFC765]">
                     <option value="gregorian">Masehi</option>
                     <option value="hijri">Hijriyah</option>
-                    <option value="javanese" disabled>Jawa (Coming Soon)</option>
-                    <option value="sundanese" disabled>Sunda (Coming Soon)</option>
+                    <option value="javanese">Jawa/Sunda-Islam</option>
+                    <option value="sundanese" disabled>Saka/Matahari (Coming Soon)</option>
                 </select>
             </div>
 
@@ -23,12 +23,12 @@
                     <span class="text-[#34402F]">Hijriyah</span>
                 </label>
                 <label class="flex items-center gap-2 text-sm cursor-pointer">
-                    <input type="checkbox" id="show-javanese" checked disabled class="rounded border-[#D5DDC8] text-[#7F946D] focus:ring-[#7F946D]" />
-                    <span class="text-[#34402F]">Jawa</span>
+                    <input type="checkbox" id="show-javanese" checked class="rounded border-[#D5DDC8] text-[#7F946D] focus:ring-[#7F946D]" />
+                    <span class="text-[#34402F]">Jawa/Sunda-Islam</span>
                 </label>
                 <label class="flex items-center gap-2 text-sm cursor-pointer">
                     <input type="checkbox" id="show-sundanese" checked disabled class="rounded border-[#D5DDC8] text-[#7F946D] focus:ring-[#7F946D]" />
-                    <span class="text-[#34402F]">Sunda</span>
+                    <span class="text-[#34402F]">Saka/Matahari</span>
                 </label>
                 <label class="flex items-center gap-2 text-sm cursor-pointer hidden" id="show-gregorian-container">
                     <input type="checkbox" id="show-gregorian" checked class="rounded border-[#D5DDC8] text-[#7F946D] focus:ring-[#7F946D]" />
@@ -100,8 +100,8 @@
             <button id="close-modal-btn" class="absolute top-4 right-4 text-[#647754] hover:text-[#34402F] transition-colors bg-[#F6F8F3] rounded-full p-1 border border-[#D5DDC8]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
-            <h3 class="font-bold text-2xl text-[#34402F] mb-1" id="modal-main-date">10 Juni 2026</h3>
-            <p class="text-sm font-semibold text-[#647754] uppercase tracking-wider" id="modal-main-day">Senin</p>
+            <h3 class="font-bold text-2xl text-[#34402F] mb-1" id="modal-main-date"></h3>
+            <p class="text-sm font-semibold text-[#647754] uppercase tracking-wider" id="modal-main-day"></p>
         </div>
         <div class="p-5 space-y-3" id="modal-details-container">
             <!-- JS will populate other calendar details here -->

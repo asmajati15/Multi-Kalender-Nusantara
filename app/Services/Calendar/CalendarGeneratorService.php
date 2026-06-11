@@ -28,11 +28,20 @@ class CalendarGeneratorService
             'failed' => 0,
         ];
 
-        $hijriByGregorianDate = $this->hijriService->getMonth($year, $month);
+        $hijriByGregorianDate = [];
+        try {
+            $hijriByGregorianDate = $this->hijriService->getMonth($year, $month);
+        } catch (\Throwable $e) {
+            report($e);
+            // Lanjut tanpa data Hijriyah jika API gagal
+        }
 
         foreach (CarbonPeriod::create($start, $end) as $date) {
             try {
                 $gregorianDate = $date->toDateString();
+
+                // Hapus format lama yang mengandung jam (00:00:00) untuk mencegah duplikasi
+                CalendarDate::where('gregorian_date', $gregorianDate . ' 00:00:00')->delete();
 
                 $existing = CalendarDate::query()
                     ->where('gregorian_date', $gregorianDate)

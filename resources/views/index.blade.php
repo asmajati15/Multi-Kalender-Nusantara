@@ -78,8 +78,9 @@
             const dayNamesHeader = {
                 gregorian: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
                 hijri: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Ahad'],
-                javanese: ['Senen', 'Selasa', 'Rebo', 'Kemis', 'Jemuah', 'Setu', 'Ahad'],
-                sundanese: ['Soma', 'Anggara', 'Buda', 'Respati', 'Sukra', 'Tumpek', 'Radite']
+                javanese: ['Senen', 'Selasa', 'Rebu', 'Kemis', 'Jemuah', 'Setu', 'Ahad'],
+                sundanese: ['Senen', 'Selasa', 'Rebo', 'Kemis', 'Jumaah', 'Sabtu', 'Ahad'],
+                // sundanese: ['Soma', 'Anggara', 'Buda', 'Respati', 'Sukra', 'Tumpek', 'Radite']
             };
 
             const checkBoxes = {
@@ -90,10 +91,24 @@
             };
 
             const labels = {
+                gregorian: 'M',
+                hijri: 'H',
+                javanese: '',
+                sundanese: '-'
+            };
+
+            const mobileLabels = {
                 gregorian: 'Masehi',
                 hijri: 'Hijriyah',
-                javanese: 'Jawa',
-                sundanese: 'Sunda'
+                javanese: 'Jawa/Sunda-Islam',
+                sundanese: 'Saka/Matahari'
+            };
+
+            const monthNames = {
+                gregorian: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                hijri: ['Muharram', 'Safar', 'Rabiul Awal', 'Rabiul Akhir', 'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Syaban', 'Ramadhan', 'Syawal', 'Dzulqaidah', 'Dzulhijjah'],
+                javanese: ['Sura / Muharam', 'Sapar', 'Mulud', 'Bakda Mulud / Silih Mulud', 'Jumadilawal', 'Jumadilakhir', 'Rejeb', 'Ruwah', 'Pasa (puasa) / Ramelan', 'Sawal / Riyaya', 'Sela / Apit', 'Besar / Rayagung'],
+                sundanese: ['Kasa', 'Karo', 'Katiga / Katelu', 'Kapat', 'Kalima', 'Kanem', 'Kapitu', 'Kawalu / Kawolu', 'Kasanga', 'Kadasa', 'Hapitlemah / Dhesta', 'Hapitkayu / Sadha']
             };
 
             const checkContainers = {
@@ -135,14 +150,14 @@
                 modalDetailsContainer.innerHTML = '';
 
                 // Add all calendars except main
-                Object.keys(labels).forEach(key => {
+                Object.keys(mobileLabels).forEach(key => {
                     if (key !== mainCal) {
                         const d = dayData[key];
                         const div = document.createElement('div');
                         div.className = "bg-white p-3 rounded-xl border border-[#D5DDC8] shadow-sm";
                         div.innerHTML = `
-                            <h4 class="text-[10px] font-bold text-[#647754] uppercase tracking-wider mb-1">${labels[key]}</h4>
-                            <p class="text-sm font-medium text-[#34402F]">${d.dayName}, ${d.day} ${d.monthName} ${d.year}</p>
+                            <h4 class="text-[10px] font-bold text-[#647754] uppercase tracking-wider mb-1">${mobileLabels[key]}</h4>
+                            <p class="text-sm font-medium text-[#34402F]">${d.dayName}, ${d.day} ${d.monthName} ${d.year} ${labels[key]}</p>
                         `;
                         modalDetailsContainer.appendChild(div);
                     }
@@ -222,8 +237,8 @@
                                     year: d.javanese_year || '-'
                                 },
                                 sundanese: {
-                                    dayName: d.sundanese_day_name || '-',
-                                    marketDay: d.sundanese_market_day || '-',
+                                    dayName: d.javanese_day_name || '-',
+                                    marketDay: d.javanese_market_day || '-',
                                     day: d.sundanese_day || '-',
                                     monthName: d.sundanese_month_name || '-',
                                     monthIndex: d.sundanese_month,
@@ -258,13 +273,7 @@
 
                 // Get month names for the selected calendar type from API data or static if empty
                 // But for now, we only need to populate them correctly
-                const monthNames = {
-                    gregorian: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-                    hijri: ['Muharram', 'Safar', 'Rabiul Awal', 'Rabiul Akhir', 'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Syaban', 'Ramadhan', 'Syawal', 'Dzulqaidah', 'Dzulhijjah'],
-                    javanese: ['Sura / Muharam', 'Sapar', 'Mulud', 'Bakda Mulud / Silih Mulud', 'Jumadilawal', 'Jumadilakhir', 'Rejeb', 'Ruwah', 'Pasa (puasa) / Ramelan', 'Sawal / Riyaya', 'Sela / Apit', 'Besar / Rayagung'],
-                    sundanese: ['Kasa', 'Karo', 'Katiga / Katelu', 'Kapat', 'Kalima', 'Kanem', 'Kapitu', 'Kawalu / Kawolu', 'Kasanga', 'Kadasa', 'Hapitlemah / Dhesta', 'Hapitkayu / Sadha']
-                    // sundanese: ['Kartika', 'Margasira', 'Posya', 'Maga', 'Palguna', 'Setra', 'Wesaka', 'Yesta', 'Asada', 'Srawana', 'Badrapada', 'Asuji']
-                };
+                // (using global monthNames)
 
                 const currentMonths = monthNames[mainCal] || monthNames.gregorian;
 
@@ -377,7 +386,7 @@
                                 subItem.className = isToday
                                     ? "text-[9px] md:text-[11px] text-[#D5DDC8] truncate w-full"
                                     : "text-[9px] md:text-[11px] text-[#4F5F43] truncate w-full";
-                                subItem.textContent = `${labels[key]}: ${dayData[key].day} ${dayData[key].monthName} ${dayData[key].year}`;
+                                subItem.textContent = `${dayData[key].day} ${dayData[key].monthName} ${dayData[key].year} ${labels[key]}`;
                                 subDateDiv.appendChild(subItem);
                             }
                         });
@@ -511,6 +520,84 @@
             }
 
             // Conversion Logic
+            const convFromCal = document.getElementById('conv-from-cal');
+            const convToCal = document.getElementById('conv-to-cal');
+            const convMonth = document.getElementById('conv-month');
+            const convYear = document.getElementById('conv-year');
+            const convDay = document.getElementById('conv-day');
+
+            let todayAllCalendars = null;
+            // Fetch today's date in all calendars once for conversion defaults
+            fetch(`/api/calendars/convert?from_calendar=gregorian&day=${todayDate}&month=${todayMonth}&year=${todayYear}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.data) {
+                        todayAllCalendars = data.data;
+                    }
+                })
+                .catch(e => console.error(e));
+
+            if (convFromCal && convToCal && convMonth) {
+                const ensureDifferent = (source, target) => {
+                    if (source.value === target.value) {
+                        for (let i = 0; i < target.options.length; i++) {
+                            if (target.options[i].value !== source.value && !target.options[i].disabled) {
+                                target.value = target.options[i].value;
+                                break;
+                            }
+                        }
+                    }
+                };
+
+                const updateConvMonthDropdown = () => {
+                    const cal = convFromCal.value;
+                    const currentVal = convMonth.value;
+                    const currentMonths = monthNames[cal] || monthNames.gregorian;
+
+                    convMonth.innerHTML = '';
+                    currentMonths.forEach((m, idx) => {
+                        const opt = document.createElement('option');
+                        opt.value = idx + 1;
+                        opt.textContent = m;
+                        if (idx + 1 == currentVal) opt.selected = true;
+                        convMonth.appendChild(opt);
+                    });
+                };
+
+                convFromCal.addEventListener('change', () => {
+                    ensureDifferent(convFromCal, convToCal);
+                    updateConvMonthDropdown();
+
+                    if (todayAllCalendars) {
+                        const cal = convFromCal.value;
+                        if (cal === 'gregorian') {
+                            convDay.value = todayAllCalendars.gregorian_day;
+                            convMonth.value = todayAllCalendars.gregorian_month;
+                            convYear.value = todayAllCalendars.gregorian_year;
+                        } else if (cal === 'hijri') {
+                            convDay.value = todayAllCalendars.hijri_day;
+                            convMonth.value = todayAllCalendars.hijri_month;
+                            convYear.value = todayAllCalendars.hijri_year;
+                        } else if (cal === 'javanese') {
+                            convDay.value = todayAllCalendars.javanese_day;
+                            convMonth.value = todayAllCalendars.javanese_month;
+                            convYear.value = todayAllCalendars.javanese_year;
+                        } else if (cal === 'sundanese') {
+                            convDay.value = todayAllCalendars.sundanese_day;
+                            convMonth.value = todayAllCalendars.sundanese_month;
+                            convYear.value = todayAllCalendars.sundanese_year;
+                        }
+                    }
+                });
+
+                convToCal.addEventListener('change', () => {
+                    ensureDifferent(convToCal, convFromCal);
+                });
+
+                // Init
+                updateConvMonthDropdown();
+            }
+
             const convSubmitBtn = document.getElementById('conv-submit-btn');
             if (convSubmitBtn) {
                 convSubmitBtn.addEventListener('click', async (e) => {
@@ -550,19 +637,19 @@
                         // Update Main Result
                         const mainTitle = document.getElementById('conv-main-title');
                         const mainText = document.getElementById('conv-main-text');
-                        mainTitle.textContent = `Hasil Konversi Utama (${labels[toCal]})`;
+                        mainTitle.textContent = `Hasil Konversi Utama (${mobileLabels[toCal]})`;
                         mainText.textContent = formatted[toCal];
 
                         // Update Additional Results (the other 3)
                         const others = Object.keys(formatted).filter(k => k !== toCal);
 
-                        document.getElementById('conv-add-1-title').textContent = labels[others[0]];
+                        document.getElementById('conv-add-1-title').textContent = mobileLabels[others[0]];
                         document.getElementById('conv-add-1-text').textContent = formatted[others[0]];
 
-                        document.getElementById('conv-add-2-title').textContent = labels[others[1]];
+                        document.getElementById('conv-add-2-title').textContent = mobileLabels[others[1]];
                         document.getElementById('conv-add-2-text').textContent = formatted[others[1]];
 
-                        document.getElementById('conv-add-3-title').textContent = labels[others[2]];
+                        document.getElementById('conv-add-3-title').textContent = mobileLabels[others[2]];
                         document.getElementById('conv-add-3-text').textContent = formatted[others[2]];
 
                     } catch (err) {

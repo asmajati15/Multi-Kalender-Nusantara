@@ -55,8 +55,6 @@ class CalendarDate extends Model
     ];
 
     protected $casts = [
-        'gregorian_date' => 'date',
-
         'hijri_is_verified' => 'boolean',
         'javanese_is_verified' => 'boolean',
         'sundanese_is_verified' => 'boolean',

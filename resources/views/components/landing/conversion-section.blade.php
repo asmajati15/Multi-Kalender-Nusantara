@@ -17,8 +17,8 @@
                         <select id="conv-from-cal" class="flex h-10 w-full rounded-md border border-[#D5DDC8] bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EFC765]">
                             <option value="gregorian">Masehi</option>
                             <option value="hijri">Hijriyah</option>
-                            <option value="javanese" disabled>Jawa (Coming Soon)</option>
-                            <option value="sundanese" disabled>Sunda (Coming Soon)</option>
+                            <option value="javanese">Jawa/Sunda-Islam</option>
+                            <option value="sundanese" disabled>Saka/Matahari (Coming Soon)</option>
                         </select>
                     </div>
 
@@ -49,8 +49,8 @@
                         <select id="conv-to-cal" class="flex h-10 w-full rounded-md border border-[#D5DDC8] bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EFC765]">
                             <option value="hijri">Hijriyah</option>
                             <option value="gregorian">Masehi</option>
-                            <option value="javanese" disabled>Jawa (Coming Soon)</option>
-                            <option value="sundanese" disabled>Sunda (Coming Soon)</option>
+                            <option value="javanese">Jawa/Sunda-Islam</option>
+                            <option value="sundanese" disabled>Saka/Matahari (Coming Soon)</option>
                         </select>
                     </div>
 
@@ -66,7 +66,6 @@
                 <div class="rounded-3xl border border-[#EFC765]/60 bg-[#FFF9EA]/70 text-card-foreground shadow-sm flex flex-col justify-center p-6 text-center">
                     <h3 id="conv-main-title" class="font-medium tracking-tight text-[#87531F] mb-3">Hasil Konversi Utama (Hijriyah)</h3>
                     <div id="conv-main-text" class="text-2xl md:text-3xl font-bold text-[#603A1E]">
-                        Rabu, 24 Dzulhijjah 1447 H
                     </div>
                 </div>
 
@@ -74,14 +73,14 @@
                 <div id="conv-additional-results" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                     <div class="rounded-2xl border border-[#D5DDC8] bg-white p-4 text-center">
                         <h4 id="conv-add-1-title" class="text-xs font-semibold text-[#647754] mb-1 uppercase tracking-wider">Masehi</h4>
-                        <p id="conv-add-1-text" class="text-sm font-medium text-[#34402F]">Rabu, 10 Juni 2026</p>
+                        <p id="conv-add-1-text" class="text-sm font-medium text-[#34402F]"></p>
                     </div>
                     <div class="rounded-2xl border border-[#D5DDC8] bg-white p-4 text-center">
-                        <h4 id="conv-add-2-title" class="text-xs font-semibold text-[#647754] mb-1 uppercase tracking-wider">Jawa</h4>
-                        <p id="conv-add-2-text" class="text-sm font-medium text-[#34402F] opacity-50">Coming Soon</p>
+                        <h4 id="conv-add-2-title" class="text-xs font-semibold text-[#647754] mb-1 uppercase tracking-wider">Jawa/Sunda-Islam</h4>
+                        <p id="conv-add-2-text" class="text-sm font-medium text-[#34402F]"></p>
                     </div>
                     <div class="rounded-2xl border border-[#D5DDC8] bg-white p-4 text-center">
-                        <h4 id="conv-add-3-title" class="text-xs font-semibold text-[#647754] mb-1 uppercase tracking-wider">Sunda</h4>
+                        <h4 id="conv-add-3-title" class="text-xs font-semibold text-[#647754] mb-1 uppercase tracking-wider">Saka/Matahari</h4>
                         <p id="conv-add-3-text" class="text-sm font-medium text-[#34402F] opacity-50">Coming Soon</p>
                     </div>
                 </div>

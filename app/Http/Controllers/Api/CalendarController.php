@@ -43,9 +43,11 @@ class CalendarController extends Controller
                   ->where($colPrefix . 'month', $month);
         }
 
-        $days = $query->orderBy('gregorian_date')
-            ->get()
-            ->keyBy(fn ($day) => $day->gregorian_date->format('Y-m-d'));
+        $days = $query->get()
+            ->sortByDesc('updated_at')
+            ->unique(fn ($day) => explode(' ', $day->gregorian_date)[0])
+            ->sortBy(fn ($day) => explode(' ', $day->gregorian_date)[0])
+            ->keyBy(fn ($day) => explode(' ', $day->gregorian_date)[0]);
 
         return response()->json([
             'status' => 'success',
@@ -95,7 +97,7 @@ class CalendarController extends Controller
                 return response()->json(['message' => 'Kalender asal tidak valid.'], 422);
         }
 
-        $result = $query->first();
+        $result = $query->latest('updated_at')->first();
 
         if (! $result) {
             return response()->json(['message' => 'Tanggal tidak ditemukan di rentang data kami (1950-2050).'], 404);
