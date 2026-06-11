@@ -6,8 +6,10 @@ use Carbon\Carbon;
 
 class JavaneseCalendarService
 {
-    private const EPOCH_DATE = '1633-07-08';
-    private const EPOCH_YEAR = 1555;
+    // Epoch kalender Jawa modern menggunakan Kurup Asapon (Alip Selasa Pon)
+    // 1 Sura 1867 J bertepatan dengan 24 Maret 1936 Masehi
+    private const EPOCH_DATE = '1936-03-24';
+    private const EPOCH_YEAR = 1867;
 
     // Pasaran cycle: 0=Legi, 1=Pahing, 2=Pon, 3=Wage, 4=Kliwon
     // 8 Juli 1633 adalah hari Jumat Legi
@@ -19,26 +21,34 @@ class JavaneseCalendarService
         9 => 'Pasa', 10 => 'Sawal', 11 => 'Dulkangidah', 12 => 'Besar'
     ];
 
-    public function make(Carbon $date): array
+    public function make(Carbon $date, array $hijriData = []): array
     {
+        // Pasaran dan nama hari Masehi selalu dihitung konsisten dari Julian/Gregorian
         $epoch = Carbon::createFromFormat('Y-m-d', self::EPOCH_DATE)->startOfDay();
         $target = $date->copy()->startOfDay();
 
-        if ($target->lessThan($epoch)) {
-            return $this->emptyResult();
+        // Pasaran dihitung berkesinambungan dari 8 Juli 1633 (Jumat Legi)
+        $pasaranEpoch = Carbon::createFromFormat('Y-m-d', '1633-07-08')->startOfDay();
+        $pasaranDiffDays = (int) $pasaranEpoch->diffInDays($target);
+        if ($target->lessThan($pasaranEpoch)) {
+            $pasaranDiffDays = -$pasaranDiffDays;
         }
-
-        $diffDays = (int) $epoch->diffInDays($target);
-
-        // Pasaran
-        $pasaranIndex = $diffDays % 5;
+        
+        $pasaranIndex = $pasaranDiffDays % 5;
+        if ($pasaranIndex < 0) {
+            $pasaranIndex += 5;
+        }
         $pasaran = self::PASARAN[$pasaranIndex];
 
-        // Hari
-        $dayNameIndex = $target->dayOfWeek; // 0 (Minggu) - 6 (Sabtu)
+        $dayNameIndex = $target->dayOfWeek; // 0 (Sun) - 6 (Sat)
         $dayName = self::DAYS[$dayNameIndex];
 
-        // Tahun, Bulan, Tanggal
+        // Perhitungan Tanggal menggunakan Kurup Asapon
+        $diffDays = (int) $epoch->diffInDays($target);
+        if ($target->lessThan($epoch)) {
+            $diffDays = -$diffDays;
+        }
+
         $cycles = intdiv($diffDays, 2835);
         $remainderDays = $diffDays % 2835;
 

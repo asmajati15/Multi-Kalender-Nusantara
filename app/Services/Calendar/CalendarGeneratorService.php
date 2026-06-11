@@ -55,7 +55,7 @@ class CalendarGeneratorService
                 $payload = array_merge(
                     $this->gregorianService->make($date),
                     $hijriByGregorianDate[$gregorianDate] ?? [],
-                    $this->javaneseService->make($date),
+                    $this->javaneseService->make($date, $hijriByGregorianDate[$gregorianDate] ?? []),
                     $this->sundaneseService->make($date),
                     [
                         'is_generated' => true,
